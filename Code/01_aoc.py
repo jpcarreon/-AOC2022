@@ -1,18 +1,26 @@
-import os
-import math
-import re
-
-os.system("cls")
-print("\n\nNEW INPUT\n")
-
 def arrayToInt(array): return [int(i) for i in array]
 
-def inc2dArray(array, x = 1): return [[j + x for j in i] for i in array]
+def countCalories(input):
+    max = 0
+    for i in input:
+        if (max < sum(i)):
+            max = sum(i)
+    return max
 
-fp = open("../Input/12_input.txt", "r").read().split("\n")
+def countTopThree(input):
+    record = []
+    for i in input:
+        record.append(sum(i))
+
+    record = sorted(record)
+
+    return sum(record[-3:])
+
+fp = open("../Input/01_input.txt", "r").read().split("\n\n")
 
 inputNum = []
 for i in fp: 
-    inputNum.append(i)
+    inputNum.append(arrayToInt(i.split("\n")))
 
-print(inputNum)
+print(countCalories(inputNum))
+print(countTopThree(inputNum))
