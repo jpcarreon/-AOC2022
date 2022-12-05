@@ -1,26 +1,66 @@
-import os
-import math
-import re
+def arrayToInt(array): 
+    newArray = []
+    for i in array:
+        try:
+            newArray.append(int(i))
+        except:
+            newArray.append(i)
+    return newArray
 
-os.system("cls")
-print("\n\nNEW INPUT\n")
+def dictDeepCopy(dictionary): return {i: j.copy() for i,j in dictionary.items()}
 
-def arrayToInt(array): return [int(i) for i in array]
+def part1(table, moves):
+    for i in moves.split("\n"):
+        currentMove = arrayToInt(i.split())
+        
+        for i in range(0, currentMove[1]):
+            table[currentMove[5]].insert(0, table[currentMove[3]].pop(0))
+            
+    result = ""
+    for i in table.values():
+        result += i[0]
+    
+    return result
 
-def inc2dArray(array, x = 1): return [[j + x for j in i] for i in array]
+def part2(table, moves):
+    for i in moves.split("\n"):
+        currentMove = arrayToInt(i.split())
 
-def part1(input):
-    return 0
+        taken = table[currentMove[3]][0:currentMove[1]]
 
-def part2(input):
-    return 0
+        for i in range(len(taken), 0, -1):
+            table[currentMove[5]].insert(0, taken[i - 1])
+            table[currentMove[3]].pop(0)
+            
+    result = ""
+    for i in table.values():
+        result += i[0]
+    
+    return result
 
-fp = open("../Input/05_input2.txt", "r").read().split("\n")
+fp = open("../Input/05_input.txt", "r").read().split("\n\n")
 
-inputNum = []
-for i in fp: 
-    inputNum.append(i)
+stacks = {}
+fp[0] = fp[0].split("\n")
+for i in fp[0][-1].split():
+    stacks[int(i)] = []
 
-print(inputNum)
-print(part1(inputNum))
-print(part2(inputNum))
+for i in fp[0][:-1]:
+    idx = 1
+
+    ta = i.split(" ")
+    new = ""
+
+    for j in ta:
+        if (j != ""):
+            new += j
+        new += " "
+
+    for i in range(1, len(new), 4):
+        if new[i] != " ":
+            stacks[idx].append(new[i])
+        
+        idx += 1
+
+print(part1(dictDeepCopy(stacks), fp[1]))
+print(part2(dictDeepCopy(stacks), fp[1]))
