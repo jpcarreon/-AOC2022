@@ -1,35 +1,129 @@
-import os
-import math
+import os; os.system("cls")
 import re
 
-os.system("cls")
-print("\n\nNEW INPUT\n")
+def parseFileSystem(input):
+    files = {"/": {"SIZE": 0}}
+    pwd = []
 
-def arrayToInt(array): 
-    newArray = []
-    for i in array:
-        try:
-            newArray.append(int(i))
-        except:
-            newArray.append(i)
-    return newArray
+    for i in input:
+        i = i.split()
+        
+        if (i[0] == "$"):
+            if (i[1] == "cd"):
+                if (i[2] == ".."):
+                    pwd.pop()
+                else:
+                    pwd.append(i[2])
+        else:
+            fp = files
+            for j in pwd:
+                fp = fp[j]
 
-def inc2dArray(array, x = 1): return [[j + x for j in i] for i in array]
+            if (i[0] == "dir"):
+                fp[i[1]] = {"SIZE": 0}
 
-def dictDeepCopy(dictionary): return {i: j.copy() for i,j in dictionary.items()}
+            else:
+                fp[i[1]] = int(i[0])
+                
+                fp = files
+                for j in pwd:
+                    fp[j]["SIZE"] += int(i[0])
+                    fp = fp[j]
+    return files
 
-def part1(input):
-    return 0
+def parseFileSystemSize(input):
+    files = {"/": 0}
+    pwd = []
 
-def part2(input):
-    return 0
+    for i in input:
+        i = i.split()
 
-fp = open("../Input/07_input2.txt", "r").read().split("\n")
+        if (i[0] == "$"):
+            if (i[1] == "cd"):
+                if (i[2] == ".."):
+                    pwd.pop()
+                else:
+                    pwd.append(i[2])
+        else:
+            current = "/"
+            for j in pwd[1:]:
+                current += j + "/"
+
+            
+            if (i[0] == "dir"):
+                files[current + i[1]] = 0
+
+            else:
+                for x in files.keys():
+                    if (current.startswith(x)):
+                        files[x] += int(i[0])
+                        
+    return files
+
+def part1Helper(files, sum):
+    for i, j in files.items():
+        if i == "SIZE" and j <= 100000: 
+            sum += j
+
+        elif (isinstance(j, dict)):
+            sum += part1Helper(j, 0)
+            
+    return sum
+
+def part1(files):
+    sum = 0
+    for i, j in files["/"].items():
+        if i == "SIZE" and j <= 100000: 
+            sum += j
+
+        elif (isinstance(j, dict)):
+            sum += part1Helper(j, 0)
+
+    return sum
+
+def part2Helper(files, minimum, unusedSpace, needed):
+    for i, j in files.items():
+        if i == "SIZE" and  unusedSpace + j >= needed: 
+            minimum = min(j, minimum)
+
+        elif (isinstance(j, dict)):
+            minimum = part2Helper(j, minimum, unusedSpace, needed)
+
+    return minimum
+
+def part2(files):
+    minimum = 9999999999
+    unusedSpace = 70000000 - files["/"]["SIZE"]
+    needed = 30000000
+    
+    for i, j in files["/"].items():
+        if i == "SIZE" and  unusedSpace + j >= needed: 
+            minimum = min(j, minimum)
+
+        elif (isinstance(j, dict)):
+            minimum = part2Helper(j, minimum, unusedSpace, needed)
+
+    return minimum
+
+def silverAndGold(files):
+    unusedSpace = 70000000 - files["/"]
+    needed = 30000000
+
+    silver = sum([i for i in files.values() if i <= 100000])
+    gold = min([i for i in files.values() if unusedSpace + i >= needed])
+
+    return [silver, gold]
+
+
+fp = open("../Input/07_input.txt", "r").read().split("\n")
 
 inputNum = []
 for i in fp: 
     inputNum.append(i)
 
-print(inputNum)
-print(part1(inputNum))
-print(part2(inputNum))
+files = parseFileSystemSize(inputNum)
+
+print(silverAndGold(files))
+
+#print(part1(files))
+#print(part2(files))
