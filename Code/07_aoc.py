@@ -121,9 +121,9 @@ inputNum = []
 for i in fp: 
     inputNum.append(i)
 
-files = parseFileSystemSize(inputNum)
+files = parseFileSystem(inputNum)
 
-print(silverAndGold(files))
+#print(silverAndGold(files))
 
-#print(part1(files))
-#print(part2(files))
+print(part1(files))
+print(part2(files))
