@@ -7,88 +7,51 @@ def arrayToInt(array):
             newArray.append(i)
     return newArray
 
-def getColumn(matrix, idx): return [row[idx] for row in matrix]
-
-def checkVisibility(data, num, c):
-    visible = [1, 1, 1, 1]
-    col = getColumn(data, c[1])
-
-    # left
-    for i in range(c[1]):
-        if (data[c[0]][i] >= num):
-            visible[0] = 0
+def walk(array, threshold):
+    count = 0
+    for i in array:
+        count += 1
+        if (i >= threshold):
             break
 
-    # right
-    for i in range(len(data[0]) - 1, c[1], -1):
-        if (data[c[0]][i] >= num):
-            visible[1] = 0
-            break
-
-    # up
-    for i in range(c[0]):
-        if (col[i] >= num):
-            visible[2] = 0
-            break
-
-    # down
-    for i in range(len(col) - 1, c[0], -1):
-        if (col[i] >= num):
-            visible[3] = 0
-            break
-    
-    return visible
+    return count
 
 def part1(data):
-    visible = (len(data[0]) * 4) - 4
+    cols = len(data)
+    rows = len(data[0])
+    visible = (cols * 2 + rows * 2) - 4
 
-    for i in range(1, len(data[0]) - 1):
-        for j in range(1, len(data) - 1):
-            result = checkVisibility(data, data[i][j], [i, j])
+    for i in range(1, rows - 1):
+        for j in range(1, cols - 1):
+            left = data[i][:j]
+            right = data[i][j + 1:]
+            up = [data[k][j] for k in range(i)]
+            down = [data[k][j] for k in range(i + 1, cols)]
 
-            if (max(result) == 1):
+            if any([data[i][j] > max(k) for k in [left, right, up, down]]):
                 visible += 1
-            
+
     return visible
-    
-def countVisibility(data, num, c):
-    visible = [0, 0, 0, 0]
-    col = getColumn(data, c[1])
-
-    # left
-    for i in range(c[1] - 1, -1, -1):
-        visible[0] += 1
-        if (data[c[0]][i] >= num):
-            break
-
-    # right
-    for i in range(c[1] + 1, len(data[0])):
-        visible[1] += 1
-        if (data[c[0]][i] >= num):
-            break
-
-    # up
-    for i in range(c[0] - 1, -1, -1):
-        visible[2] += 1
-        if (col[i] >= num):
-            break
-
-    # down
-    for i in range(c[0] + 1, len(data)):
-        visible[3] += 1
-        if (col[i] >= num):
-            break
-
-    return visible[0] * visible[1] * visible[2] * visible[3] 
 
 def part2(data):
+    cols = len(data)
+    rows = len(data[0])
     score = 0
 
-    for i in range(1, len(data[0]) - 1):
-        for j in range(1, len(data) - 1):
-            result = countVisibility(data, data[i][j], [i, j])
-            score = max(score, result)
+    for i in range(1, rows - 1):
+        for j in range(1, cols - 1):
+            left = data[i][:j]
+            right = data[i][j + 1:]
+            up = [data[k][j] for k in range(i)]
+            down = [data[k][j] for k in range(i + 1, cols)]
 
+            left.reverse()
+            up.reverse()
+            k = data[i][j]
+            
+            currentScore = walk(left, k) * walk(right, k) * walk(up, k) * walk(down, k)
+            score = max(score, currentScore)
+            
     return score
 
 
