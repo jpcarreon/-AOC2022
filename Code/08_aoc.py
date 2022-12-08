@@ -1,10 +1,3 @@
-import os
-import math
-import re
-
-os.system("cls")
-print("\n\nNEW INPUT\n")
-
 def arrayToInt(array): 
     newArray = []
     for i in array:
@@ -14,22 +7,96 @@ def arrayToInt(array):
             newArray.append(i)
     return newArray
 
-def inc2dArray(array, x = 1): return [[j + x for j in i] for i in array]
+def getColumn(matrix, idx): return [row[idx] for row in matrix]
 
-def dictDeepCopy(dictionary): return {i: j.copy() for i,j in dictionary.items()}
+def checkVisibility(data, num, c):
+    visible = [1, 1, 1, 1]
+    col = getColumn(data, c[1])
 
-def part1(input):
-    return 0
+    # left
+    for i in range(c[1]):
+        if (data[c[0]][i] >= num):
+            visible[0] = 0
+            break
 
-def part2(input):
-    return 0
+    # right
+    for i in range(len(data[0]) - 1, c[1], -1):
+        if (data[c[0]][i] >= num):
+            visible[1] = 0
+            break
 
-fp = open("../Input/08_input2.txt", "r").read().split("\n")
+    # up
+    for i in range(c[0]):
+        if (col[i] >= num):
+            visible[2] = 0
+            break
+
+    # down
+    for i in range(len(col) - 1, c[0], -1):
+        if (col[i] >= num):
+            visible[3] = 0
+            break
+    
+    return visible
+
+def part1(data):
+    visible = (len(data[0]) * 4) - 4
+
+    for i in range(1, len(data[0]) - 1):
+        for j in range(1, len(data) - 1):
+            result = checkVisibility(data, data[i][j], [i, j])
+
+            if (max(result) == 1):
+                visible += 1
+            
+    return visible
+    
+def countVisibility(data, num, c):
+    visible = [0, 0, 0, 0]
+    col = getColumn(data, c[1])
+
+    # left
+    for i in range(c[1] - 1, -1, -1):
+        visible[0] += 1
+        if (data[c[0]][i] >= num):
+            break
+
+    # right
+    for i in range(c[1] + 1, len(data[0])):
+        visible[1] += 1
+        if (data[c[0]][i] >= num):
+            break
+
+    # up
+    for i in range(c[0] - 1, -1, -1):
+        visible[2] += 1
+        if (col[i] >= num):
+            break
+
+    # down
+    for i in range(c[0] + 1, len(data)):
+        visible[3] += 1
+        if (col[i] >= num):
+            break
+
+    return visible[0] * visible[1] * visible[2] * visible[3] 
+
+def part2(data):
+    score = 0
+
+    for i in range(1, len(data[0]) - 1):
+        for j in range(1, len(data) - 1):
+            result = countVisibility(data, data[i][j], [i, j])
+            score = max(score, result)
+
+    return score
+
+
+fp = open("../Input/08_input.txt", "r").read().split("\n")
 
 inputNum = []
 for i in fp: 
-    inputNum.append(i)
+    inputNum.append(arrayToInt(i))
 
-print(inputNum)
 print(part1(inputNum))
 print(part2(inputNum))
