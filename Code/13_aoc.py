@@ -46,7 +46,7 @@ def part1(input):
 
 
 def part2(input):
-    packets = [[2], [6]]
+    packets = [[[2]], [[6]]]
     temp = None
     answer = 1
 
@@ -62,9 +62,9 @@ def part2(input):
                 packets[j + 1] = temp
         
     for i in range(len(packets)):
-        if packets[i] == [2]:
+        if packets[i] == [[2]]:
             answer *= i + 1
-        elif packets[i] == [6]:
+        elif packets[i] == [[6]]:
             answer *= i + 1
     
     return answer
