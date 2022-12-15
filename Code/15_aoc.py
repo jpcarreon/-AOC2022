@@ -1,34 +1,71 @@
-import os
-import math
 import re
 
-os.system("cls")
-print("\n\nNEW INPUT\n")
+def manhattanDist(src, dest):
+    return abs(src[0] - dest[0]) + abs(src[1] - dest[1])
 
-def arrayToInt(array): 
-    newArray = []
-    for i in array:
-        try:
-            newArray.append(int(i))
-        except:
-            newArray.append(i)
-    return newArray
+def part1(sensors, beacons, yval):
+    locations = set()
+    
+    for i, j in sensors.items():
+        k = i[0]
+        while True:
+            loc = (k, yval)
+            if manhattanDist(i, loc) <= j and loc not in beacons:
+                locations.add(loc)
+            else: break
+            k += 1
 
-def inc2dArray(array, x = 1): return [[j + x for j in i] for i in array]
+        k = i[0]
+        while True:
+            loc = (k, yval)
+            if manhattanDist(i, loc) <= j and loc not in beacons:
+                locations.add(loc)
+            else: break
+            k -= 1
 
-def dictDeepCopy(dictionary): return {i: j.copy() for i,j in dictionary.items()}
+    return len(locations)
 
-def part1(input):
-    pass
+def part2(sensors, limit):    
+    for y in range(limit + 1):
 
-def part2(input):
-    pass
+        ranges = []
+        for sensor, k in sensors.items():
+            check = manhattanDist(sensor, (sensor[0], y))
+            if check > k: continue
 
-fp = open("../Input/15_input2.txt", "r").read().split("\n")
+            check = k - check
+            lowBound = sensor[0] - check if sensor[0] - check >= 0 else 0
+            upBound = sensor[0] + check if sensor[0] + check <= limit else limit 
+            ranges.append((lowBound, upBound))
 
-inputNum = []
+        formedRange = ranges.pop(0)
+        while len(ranges) > 1:
+            curr = ranges.pop(0)
+
+            if (curr[1] + 1 >= formedRange[0] and curr[1] <= formedRange[1]):
+                formedRange = (min(formedRange[0], curr[0]), max(formedRange[1], curr[1]))
+            elif (formedRange[1] + 1 >= curr[0] and formedRange[1] <= curr[1]):
+                formedRange = (min(formedRange[0], curr[0]), max(formedRange[1], curr[1]))
+            else:
+                ranges.append(curr)
+            
+            if (formedRange[1] < min([i[0] for i in ranges])):
+                return  formedRange[1] * 4000000 + y
+
+fp = open("../Input/15_input.txt", "r").read().split("\n")
+
+beacons = set()
+sensors = {}
 for i in fp: 
-    inputNum.append(i)
+    i = re.sub(r"(Sensor\sat|closest\sbeacon\sis\sat)\s", "", i).split(": ")
+    sensor = i[0].split("=")
+    beacon = i[1].split("=")
+    
+    sensor = (int(sensor[1][:-3]), int(sensor[-1]))
+    beacon = (int(beacon[1][:-3]), int(beacon[-1]))
+    
+    sensors[sensor] = manhattanDist(sensor, beacon)
+    beacons.add(beacon)
 
-print(part1(inputNum))
-#print(part2(inputNum))
+print(part1(sensors, beacons, 2000000))
+print(part2(sensors, 4000000))
